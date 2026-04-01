@@ -1,6 +1,10 @@
 from pathlib import Path
 import os
 
+from dotenv import load_dotenv
+# Load environment variables from .env file
+load_dotenv()
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-a1^(l%4n$b5cud10(+ahe50cdghux@deiwza@lul+pkx@#j_lk'
 DEBUG = True
@@ -75,8 +79,8 @@ SOCIALACCOUNT_PROVIDERS = {
         'SCOPE': ['profile', 'email'],
         'AUTH_PARAMS': {'access_type': 'online'},
         'APP': {
-            'client_id': 'ISI-CLIENT-ID-GOOGLE-KAMU',
-            'secret': 'ISI-CLIENT-SECRET-GOOGLE-KAMU',
+            'client_id': os.environ.get('GOOGLE_CLIENT_ID'),
+            'secret': os.environ.get('GOOGLE_CLIENT_SECRET'),
             'key': ''
         }
     }
