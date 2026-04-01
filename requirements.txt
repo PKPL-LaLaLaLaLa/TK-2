@@ -1,5 +1,7 @@
 django>=4.2
 django-allauth
+PyJWT
+cryptography
 Pillow
 whitenoise
 gunicorn
