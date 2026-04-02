@@ -13,7 +13,7 @@ source env/bin/activate     # Mac / Linux
 # 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. Buat file .env (salin dari template, lalu isi credentials kamu)
+# 4. Buat file .env (salin dari template, lalu isi credentials )
 copy .env.example .env      # Windows
 cp .env.example .env        # Mac / Linux
 
