@@ -1,0 +1,679 @@
+{% extends 'biodata/base.html' %}
+{% load biodata_extras %}
+
+{% block content %}
+<style>
+    /* ────────────────────────────────
+     PAGE HEADER
+  ──────────────────────────────── */
+    .cust-header {
+        margin-bottom: 3rem;
+        animation: fadeSlideUp 0.5s ease both;
+    }
+
+    @keyframes fadeSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .cust-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        opacity: 0.4;
+        margin-bottom: 1.2rem;
+        letter-spacing: 0.04em;
+    }
+
+    .cust-breadcrumb a {
+        color: var(--text);
+        text-decoration: none;
+        transition: color 0.2s, opacity 0.2s;
+        opacity: 0.8;
+    }
+
+    .cust-breadcrumb a:hover {
+        color: var(--accent);
+        opacity: 1;
+    }
+
+    .cust-title {
+        font-size: clamp(1.8rem, 4vw, 2.8rem);
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        margin-bottom: 0.4rem;
+        line-height: 1.1;
+    }
+
+    .cust-title span {
+        color: var(--accent);
+    }
+
+    .cust-sub {
+        font-size: 0.88rem;
+        opacity: 0.45;
+        font-weight: 300;
+    }
+
+    /* ────────────────────────────────
+     LAYOUT
+  ──────────────────────────────── */
+    .cust-layout {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        align-items: start;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    @media (max-width: 950px) {
+        .cust-layout {
+            grid-template-columns: 1fr;
+            max-width: 440px;
+        }
+    }
+
+    /* ────────────────────────────────
+     PANELS
+  ──────────────────────────────── */
+    .cust-panel {
+        background: var(--card);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: var(--radius-lg);
+        padding: 1.8rem;
+        animation: fadeSlideUp 0.5s ease 0.1s both;
+    }
+
+    .cust-panel-title {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .cust-panel-title::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    /* Color fields */
+    .color-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .color-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .color-field label {
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        opacity: 0.5;
+    }
+
+    .color-swatch-wrap {
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1.5px solid rgba(255, 255, 255, 0.1);
+        transition: border-color 0.2s;
+        cursor: pointer;
+    }
+
+    .color-swatch-wrap:hover {
+        border-color: var(--accent);
+    }
+
+    .color-swatch-wrap input[type="color"] {
+        width: 100%;
+        height: 52px;
+        border: none;
+        cursor: pointer;
+        background: none;
+        padding: 4px;
+        border-radius: 8px;
+        display: block;
+    }
+
+    .color-swatch-hex {
+        text-align: center;
+        font-size: 0.7rem;
+        opacity: 0.5;
+        padding: 0.3rem 0;
+        font-family: 'Space Grotesk', monospace;
+        background: rgba(0, 0, 0, 0.2);
+        letter-spacing: 0.05em;
+    }
+
+    /* Font field */
+    .font-field {
+        margin-top: 1rem;
+    }
+
+    .font-field label {
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        opacity: 0.5;
+        display: block;
+        margin-bottom: 0.6rem;
+    }
+
+    .font-select-wrap {
+        position: relative;
+    }
+
+    .font-select-wrap::after {
+        content: '▾';
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        opacity: 0.4;
+        font-size: 0.85rem;
+    }
+
+    .font-select-wrap select {
+        width: 100%;
+        padding: 0.75rem 2.5rem 0.75rem 1rem;
+        border-radius: 10px;
+        border: 1.5px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+        font-family: var(--font);
+        font-size: 0.9rem;
+        outline: none;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .font-select-wrap select:focus {
+        border-color: var(--accent);
+        background: rgba(var(--accent-rgb), 0.05);
+    }
+
+    /* Font preview */
+    .font-previews {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        margin-top: 1.2rem;
+    }
+
+    .font-preview-item {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        border: 1.5px solid rgba(255, 255, 255, 0.06);
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .font-preview-item:hover {
+        border-color: rgba(var(--accent-rgb), 0.4);
+        background: rgba(var(--accent-rgb), 0.06);
+    }
+
+    .font-preview-item.active {
+        border-color: var(--accent);
+        background: rgba(var(--accent-rgb), 0.1);
+        color: var(--accent);
+    }
+
+    .font-preview-item .font-name {
+        font-size: 0.75rem;
+        opacity: 0.5;
+    }
+
+    /* ────────────────────────────────
+     PREVIEW PANEL
+  ──────────────────────────────── */
+    .preview-panel {
+        animation: fadeSlideUp 0.5s ease 0.2s both;
+    }
+
+    .live-preview {
+        background: var(--bg);
+        border-radius: var(--radius-md);
+        padding: 1.4rem;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        margin-bottom: 1.2rem;
+        transition: all 0.4s ease;
+    }
+
+    .preview-card-mock {
+        background: var(--card);
+        border-radius: 12px;
+        padding: 1.2rem;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-top: 2px solid var(--accent);
+        transition: all 0.4s ease;
+    }
+
+    .preview-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: 0.8rem;
+        transition: background 0.4s ease;
+    }
+
+    .preview-name {
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin-bottom: 0.2rem;
+        color: var(--text);
+        transition: color 0.4s ease;
+    }
+
+    .preview-role {
+        font-size: 0.68rem;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-weight: 600;
+        margin-bottom: 0.8rem;
+        transition: color 0.4s ease;
+    }
+
+    .preview-bio {
+        font-size: 0.8rem;
+        opacity: 0.5;
+        line-height: 1.6;
+        color: var(--text);
+        transition: color 0.4s ease;
+    }
+
+    .preview-tag {
+        display: inline-block;
+        margin-top: 0.8rem;
+        font-size: 0.65rem;
+        padding: 0.22rem 0.6rem;
+        border-radius: 4px;
+        background: rgba(var(--accent-rgb), 0.15);
+        color: var(--accent);
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        transition: all 0.4s ease;
+    }
+
+    /* Color palette display */
+    .palette-row {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1.2rem;
+    }
+
+    .palette-swatch {
+        flex: 1;
+        height: 8px;
+        border-radius: 100px;
+        transition: all 0.4s ease;
+    }
+
+    /* ────────────────────────────────
+     ACTIONS
+  ──────────────────────────────── */
+    .cust-actions {
+        max-width: 1100px;
+        margin: 2rem auto 0;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        align-items: center;
+        animation: fadeSlideUp 0.5s ease 0.3s both;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.65rem 1.4rem;
+        border-radius: 8px;
+        font-family: var(--font);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: all 0.25s ease;
+        letter-spacing: 0.01em;
+    }
+
+    .btn-solid {
+        background: var(--accent);
+        color: #fff;
+        box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.35);
+    }
+
+    .btn-solid:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 24px rgba(var(--accent-rgb), 0.5);
+        filter: brightness(1.1);
+    }
+
+    .btn-ghost {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1.5px solid rgba(255, 255, 255, 0.12);
+        color: var(--text);
+    }
+
+    .btn-ghost:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-danger {
+        background: transparent;
+        border: 1.5px solid rgba(239, 68, 68, 0.35);
+        color: #f87171;
+        margin-left: auto;
+        font-size: 0.78rem;
+        padding: 0.55rem 1rem;
+    }
+
+    .btn-danger:hover {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: #f87171;
+    }
+
+    /* Save indicator */
+    .save-label {
+        font-size: 0.75rem;
+        opacity: 0;
+        color: #22c55e;
+        transition: opacity 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .save-label.visible {
+        opacity: 1;
+    }
+</style>
+
+<!-- HEADER -->
+<div class="cust-header">
+    <div class="cust-breadcrumb">
+        <a href="{% url 'home' %}">Home</a>
+        <span>›</span>
+        <span>Customize</span>
+    </div>
+    <h1 class="cust-title">✎ Customize <span>Appearance</span></h1>
+    <p class="cust-sub">These color and text personalizations are visible only to you and won't affect other users.</p>
+</div>
+
+<form method="POST" id="customize-form">
+    {% csrf_token %}
+
+    <div class="cust-layout">
+
+        <!-- COLOR PANEL -->
+        <div class="cust-panel">
+            <div class="cust-panel-title">Colors</div>
+
+            <div class="color-grid">
+
+                <div class="color-field">
+                    <label for="bg_color">Background</label>
+                    <div class="color-swatch-wrap">
+                        <input type="color" id="bg_color" name="bg_color" value="{{ pref.bg_color|default:'#FCF8F8' }}"
+                            data-target="--bg" onchange="syncColor(this)">
+                        <div class="color-swatch-hex" id="hex-bg_color">{{ pref.bg_color|default:'#FCF8F8' }}</div>
+                    </div>
+                </div>
+
+                <div class="color-field">
+                    <label for="card_color">Card</label>
+                    <div class="color-swatch-wrap">
+                        <input type="color" id="card_color" name="card_color"
+                            value="{{ pref.card_color|default:'#FBEFEF' }}" data-target="--card"
+                            onchange="syncColor(this)">
+                        <div class="color-swatch-hex" id="hex-card_color">{{ pref.card_color|default:'#FBEFEF' }}</div>
+                    </div>
+                </div>
+
+                <div class="color-field">
+                    <label for="accent_color">Accent</label>
+                    <div class="color-swatch-wrap">
+                        <input type="color" id="accent_color" name="accent_color"
+                            value="{{ pref.accent_color|default:'#F5AFAF' }}" data-target="--accent"
+                            onchange="syncColor(this)">
+                        <div class="color-swatch-hex" id="hex-accent_color">{{ pref.accent_color|default:'#F5AFAF' }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="color-field">
+                    <label for="text_color">Text</label>
+                    <div class="color-swatch-wrap">
+                        <input type="color" id="text_color" name="text_color"
+                            value="{{ pref.text_color|default:'#4a044e' }}" data-target="--text"
+                            onchange="syncColor(this)">
+                        <div class="color-swatch-hex" id="hex-text_color">{{ pref.text_color|default:'#4a044e' }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FONT PANEL -->
+        <div class="cust-panel">
+            <div class="cust-panel-title">Typography</div>
+
+            <div class="font-field">
+                <label for="font_family">Font Family</label>
+                <div class="font-select-wrap">
+                    <select id="font_family" name="font_family" onchange="syncFont(this.value)">
+                        {% for font in "Syne,DM Sans,Space Grotesk,Playfair Display,Outfit"|split:"," %}
+                        <option value="{{ font }}" {% if pref.font_family == font %}selected{% endif %}>{{ font }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="font-previews">
+                {% for font in "Syne,DM Sans,Space Grotesk,Playfair Display,Outfit"|split:"," %}
+                <div class="font-preview-item {% if pref.font_family == font %}active{% endif %}"
+                    style="font-family: '{{ font }}', sans-serif;" onclick="selectFont('{{ font }}')">
+                    <span>Aa — {{ font }}</span>
+                    <span class="font-name">{{ font }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- LIVE PREVIEW -->
+        <div class="cust-panel preview-panel">
+            <div class="cust-panel-title">Live Preview</div>
+
+            <div class="live-preview" id="live-preview">
+                <div class="preview-card-mock">
+                    <div class="preview-avatar">A</div>
+                    <div class="preview-name" style="font-family: var(--font)">Member Name</div>
+                    <div class="preview-role">Frontend Dev</div>
+                    <div class="preview-bio" style="font-family: var(--font)">
+                        A short bio of the team member will appear here with the typography style you've selected.
+                    </div>
+                    <span class="preview-tag">TK-2 PKPL</span>
+                </div>
+            </div>
+
+            <div class="palette-row">
+                <div class="palette-swatch" id="swatch-bg" style="background: {{ pref.bg_color|default:'#FCF8F8' }}">
+                </div>
+                <div class="palette-swatch" id="swatch-card"
+                    style="background: {{ pref.card_color|default:'#FBEFEF' }}"></div>
+                <div class="palette-swatch" id="swatch-accent"
+                    style="background: {{ pref.accent_color|default:'#F5AFAF' }}"></div>
+                <div class="palette-swatch" id="swatch-text"
+                    style="background: {{ pref.text_color|default:'#4a044e' }}"></div>
+            </div>
+        </div>
+
+    </div><!-- /.cust-layout -->
+
+    <!-- ACTIONS -->
+    <div class="cust-actions">
+        <button type="submit" class="btn btn-solid" id="save-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                aria-hidden="true">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                <polyline points="17 21 17 13 7 13 7 21" />
+                <polyline points="7 3 7 8 15 8" />
+            </svg>
+            Save Changes
+        </button>
+        <a href="{% url 'home' %}" class="btn btn-ghost">← Back</a>
+        <span class="save-label" id="save-label">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                aria-hidden="true">
+                <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Saved!
+        </span>
+        <button type="button" class="btn btn-danger" onclick="resetDefaults()">Restore Defaults</button>
+    </div>
+
+</form>
+
+<script>
+    // Default values — must match model defaults in models.py
+    const DEFAULTS = {
+        bg_color: '#FCF8F8',
+        card_color: '#FBEFEF',
+        accent_color: '#F5AFAF',
+        text_color: '#4a044e',
+        font_family: 'Outfit',
+    };
+
+    // The preview element acts as a scoped CSS var container
+    const preview = document.getElementById('live-preview');
+
+    function hexToRgb(hex) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `${r}, ${g}, ${b}`;
+    }
+
+    /**
+     * syncColor: Updates ONLY the live-preview area's CSS vars.
+     * The real site-wide theme is NOT changed until "Simpan Perubahan" is clicked.
+     */
+    function syncColor(input) {
+        const prop = input.dataset.target;
+        const hex = input.value;
+        const hexEl = document.getElementById('hex-' + input.id);
+
+        // Only update the preview card, NOT the whole document
+        preview.style.setProperty(prop, hex);
+
+        if (hexEl) hexEl.textContent = hex;
+
+        // Update palette swatch
+        const swatchMap = {
+            '--bg': 'swatch-bg',
+            '--card': 'swatch-card',
+            '--accent': 'swatch-accent',
+            '--text': 'swatch-text',
+        };
+        const swatch = document.getElementById(swatchMap[prop]);
+        if (swatch) swatch.style.background = hex;
+
+        // Update accent-rgb in preview scope too
+        if (prop === '--accent') {
+            preview.style.setProperty('--accent-rgb', hexToRgb(hex));
+        }
+    }
+
+    function syncFont(fontName) {
+        // Font preview is scoped to the preview card only
+        preview.style.setProperty('--font', `'${fontName}', sans-serif`);
+
+        // Update active state on font preview items
+        document.querySelectorAll('.font-preview-item').forEach(el => {
+            el.classList.toggle('active', el.textContent.trim().startsWith('Aa — ' + fontName));
+        });
+
+        // Sync the select element
+        const sel = document.getElementById('font_family');
+        for (let opt of sel.options) {
+            if (opt.value === fontName) { opt.selected = true; break; }
+        }
+    }
+
+    function selectFont(fontName) {
+        syncFont(fontName);
+    }
+
+    function resetDefaults() {
+        if (!confirm('Reset all preferences to default?')) return;
+        document.getElementById('bg_color').value = DEFAULTS.bg_color;
+        document.getElementById('card_color').value = DEFAULTS.card_color;
+        document.getElementById('accent_color').value = DEFAULTS.accent_color;
+        document.getElementById('text_color').value = DEFAULTS.text_color;
+
+        Object.entries(DEFAULTS).forEach(([k, v]) => {
+            if (k === 'font_family') { syncFont(v); return; }
+            const el = document.getElementById(k);
+            if (el) syncColor(el);
+        });
+    }
+
+    // Initialise preview to reflect current form values on page load
+    (function initPreview() {
+        ['bg_color', 'card_color', 'accent_color', 'text_color'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) syncColor(el);
+        });
+        const fontSel = document.getElementById('font_family');
+        if (fontSel) syncFont(fontSel.value);
+    })();
+
+    // Show save confirmation flash after submit
+    document.getElementById('customize-form').addEventListener('submit', () => {
+        const label = document.getElementById('save-label');
+        label.classList.add('visible');
+        setTimeout(() => label.classList.remove('visible'), 3000);
+    });
+</script>
+
+{% endblock %}

@@ -20,11 +20,12 @@ class Member(models.Model):
 
 class UserPreference(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    bg_color = models.CharField(max_length=20, default='#0f0f1a')
-    card_color = models.CharField(max_length=20, default='#1a1a2e')
-    accent_color = models.CharField(max_length=20, default='#e94560')
-    font_family = models.CharField(max_length=100, default='Syne')
-    text_color = models.CharField(max_length=20, default='#ffffff')
+    # Soft pink + purple hint default theme
+    bg_color = models.CharField(max_length=20, default='#FCF8F8')
+    card_color = models.CharField(max_length=20, default='#FBEFEF')
+    accent_color = models.CharField(max_length=20, default='#F5AFAF')
+    font_family = models.CharField(max_length=100, default='Outfit')
+    text_color = models.CharField(max_length=20, default='#4a044e')
 
     def __str__(self):
         return f"Preference - {self.user.username}"

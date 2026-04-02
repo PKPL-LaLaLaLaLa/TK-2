@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaLaLaLaLa — TK-2 PKPL</title>
+    {% load static %}
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Space+Grotesk:wght@400;500;600&family=Playfair+Display:wght@700;800&family=Outfit:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* ─── CSS Custom Properties ────────────────────────────── */
+        :root {
+            --bg:     {{ pref.bg_color|default:'#FCF8F8' }};
+            --card:   {{ pref.card_color|default:'#FBEFEF' }};
+            --accent: {{ pref.accent_color|default:'#F5AFAF' }};
+            --text:   {{ pref.text_color|default:'#4a044e' }};
+            --font:   '{{ pref.font_family|default:'Outfit' }}', sans-serif;
+            /* accent-rgb matches #F5AFAF = 245, 175, 175 */
+            --accent-rgb: 245, 175, 175;
+            --glow: 0 0 40px rgba(var(--accent-rgb), 0.28);
+            --card-border: rgba(245, 175, 175, 0.25);
+            --nav-h: 68px;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ─── Reset ────────────────────────────────────────────── */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        /* ─── Scrollbar ────────────────────────────────────────── */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        /* ─── Animated Background ──────────────────────────────── */
+        .bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            animation: orbFloat 14s ease-in-out infinite alternate;
+            opacity: 0.4;
+        }
+
+        .bg-orb-1 {
+            width: 560px;
+            height: 560px;
+            background: radial-gradient(circle, #FBEFEF, #F9DFDF);
+            top: -140px;
+            left: -120px;
+            animation-duration: 16s;
+        }
+
+        .bg-orb-2 {
+            width: 440px;
+            height: 440px;
+            background: radial-gradient(circle, #F9DFDF, #F5AFAF);
+            bottom: -80px;
+            right: -60px;
+            animation-duration: 20s;
+            animation-delay: -6s;
+        }
+
+        .bg-orb-3 {
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle, #FCF8F8, #FBEFEF);
+            top: 42%;
+            left: 52%;
+            animation-duration: 12s;
+            animation-delay: -3s;
+            opacity: 0.8;
+        }
+
+        @keyframes orbFloat {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(40px, 30px) scale(1.08);
+            }
+
+            100% {
+                transform: translate(-20px, 50px) scale(0.95);
+            }
+        }
+
+        /* Grid overlay — very subtle pink dots, dreamy feel */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(245, 175, 175, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(245, 175, 175, 0.15) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+
+        /* ─── Navigation ───────────────────────────────────────── */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            height: var(--nav-h);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2.5rem;
+            background: rgba(252, 248, 248, 0.85); /* fallback FCF8F8 */
+            backdrop-filter: blur(20px) saturate(1.8);
+            -webkit-backdrop-filter: blur(20px) saturate(1.8);
+            border-bottom: 1px solid rgba(245, 175, 175, 0.25);
+            box-shadow: 0 1px 24px rgba(245, 175, 175, 0.15);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-decoration: none;
+            color: var(--text);
+        }
+
+        .nav-brand-icon {
+            width: 34px;
+            height: 34px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            box-shadow: 0 0 18px rgba(var(--accent-rgb), 0.5);
+        }
+
+        .nav-brand-text {
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-brand-text span {
+            color: var(--accent);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(245, 175, 175, 0.1);
+            border: 1px solid rgba(245, 175, 175, 0.3);
+            border-radius: 100px;
+            padding: 0.3rem 0.9rem 0.3rem 0.4rem;
+            font-size: 0.8rem;
+            color: var(--text);
+            opacity: 0.9;
+        }
+
+        .user-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 6px #22c55e;
+        }
+
+        /* ─── Buttons ──────────────────────────────────────────── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.48rem 1.1rem;
+            border-radius: 8px;
+            font-family: var(--font);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            border: none;
+            transition: var(--transition);
+            white-space: nowrap;
+            letter-spacing: 0.01em;
+        }
+
+        .btn-solid {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.35);
+        }
+
+        .btn-solid:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(var(--accent-rgb), 0.5);
+            filter: brightness(1.1);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-outline:hover {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.3);
+        }
+
+        .btn-ghost {
+            background: rgba(245, 175, 175, 0.08);
+            border: 1.5px solid rgba(245, 175, 175, 0.3);
+            color: var(--text);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(245, 175, 175, 0.18);
+            border-color: rgba(245, 175, 175, 0.5);
+        }
+
+        /* ─── Auth / Forms ─────────────────────────────────────── */
+        .auth-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60vh;
+            padding: 2rem 1rem;
+        }
+
+        .auth-card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: clamp(2rem, 6vw, 3.5rem);
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(var(--accent-rgb), 0.15);
+            max-width: 440px;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+        }
+
+        .auth-card h1 {
+            margin-bottom: 1rem;
+            font-size: clamp(1.5rem, 5vw, 1.8rem);
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .auth-card p {
+            margin-bottom: 2rem;
+            opacity: 0.8;
+            font-size: 0.95rem;
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        /* ─── Main Layout ──────────────────────────────────────── */
+        main {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2.5rem 6rem;
+        }
+
+        /* ─── Toast Messages ───────────────────────────────────── */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .toast {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-left: 3px solid var(--accent);
+            border-radius: 10px;
+            padding: 0.8rem 1.2rem;
+            font-size: 0.85rem;
+            animation: toastIn 0.4s ease, toastOut 0.4s ease 3.6s forwards;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            max-width: 320px;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        @keyframes toastOut {
+            to {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+        }
+
+        /* ─── Responsive ───────────────────────────────────────── */
+        @media (max-width: 640px) {
+            nav {
+                padding: 0 1.2rem;
+            }
+
+            main {
+                padding: 2rem 1.2rem 5rem;
+            }
+
+            .nav-brand-text {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Ambient background -->
+    <div class="bg-canvas" aria-hidden="true">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="bg-orb bg-orb-3"></div>
+    </div>
+    <div class="bg-grid" aria-hidden="true"></div>
+
+    <!-- Navigation -->
+    <nav role="navigation" aria-label="Main navigation">
+        <a href="{% url 'home' %}" class="nav-brand">
+            <div class="nav-brand-icon" style="background: transparent; box-shadow: none;">
+                {% static 'images/logo.svg' as fallback_logo %}
+                <img src="{% static 'images/logo.png' %}" onerror="this.onerror=null; this.src='{{ fallback_logo }}';" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+            </div>
+            <span class="nav-brand-text">LaLa<span>LaLaLa</span></span>
+        </a>
+
+        <div class="nav-actions">
+            {% if user.is_authenticated %}
+            <div class="user-pill">
+                <div class="user-dot"></div>
+                {{ user.email|truncatechars:28 }}
+            </div>
+            {% if is_member %}
+            <a href="{% url 'customize' %}" class="btn btn-outline" title="Customize appearance">✎ Customize</a>
+            {% endif %}
+            <a href="{% url 'account_logout' %}" class="btn btn-ghost">Sign Out</a>
+            {% else %}
+            {% load socialaccount %}
+            <a href="{% provider_login_url 'google' %}" class="btn btn-solid">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"/>
+                </svg>
+                Sign in with Google
+            </a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Django messages as toasts -->
+    {% if messages %}
+    <div class="toast-container" aria-live="polite">
+        {% for message in messages %}
+        <div class="toast">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <script>
+        // Auto-dismiss toasts
+        setTimeout(() => {
+            document.querySelectorAll('.toast').forEach(t => t.remove());
+        }, 4200);
+    </script>
+
+</body>
+
+</html>
