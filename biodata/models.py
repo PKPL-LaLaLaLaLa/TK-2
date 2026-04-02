@@ -3,16 +3,10 @@ from django.contrib.auth.models import User
 
 class Member(models.Model):
     name = models.CharField(max_length=100)
-    role = models.CharField(max_length=100)
+    npm = models.CharField(max_length=20)
+    prodi = models.CharField(max_length=100)
     bio = models.TextField()
     photo = models.ImageField(upload_to='photos/', blank=True, null=True)
-    github = models.URLField(blank=True)
-    instagram = models.URLField(blank=True)
-    email = models.EmailField(blank=True)
-    order = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        ordering = ['order']
 
     def __str__(self):
         return self.name
