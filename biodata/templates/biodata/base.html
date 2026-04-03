@@ -15,7 +15,7 @@
         rel="stylesheet">
 
     <style>
-        /* ─── CSS Custom Properties ────────────────────────────── */
+        /* CSS Custom Properties */
         :root {
             --bg:     {{ pref.bg_color|default:'#FCF8F8' }};
             --card:   {{ pref.card_color|default:'#FBEFEF' }};
@@ -32,7 +32,7 @@
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* ─── Reset ────────────────────────────────────────────── */
+        /* Reset */
         *,
         *::before,
         *::after {
@@ -54,7 +54,7 @@
             transition: background-color 0.5s ease, color 0.5s ease;
         }
 
-        /* ─── Scrollbar ────────────────────────────────────────── */
+        /* Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -68,7 +68,7 @@
             border-radius: 3px;
         }
 
-        /* ─── Animated Background ──────────────────────────────── */
+        /* Animated Background */
         .bg-canvas {
             position: fixed;
             inset: 0;
@@ -80,53 +80,72 @@
         .bg-orb {
             position: absolute;
             border-radius: 50%;
-            filter: blur(90px);
-            animation: orbFloat 14s ease-in-out infinite alternate;
+            filter: blur(100px);
+            opacity: 0.6; /* Makin solid agar pergerakan terlihat */
+            will-change: transform;
+            transition: margin 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Large orb — top-left */
+        .bg-orb-1 {
+            width: 700px; height: 700px;
+            background: radial-gradient(circle at 40% 40%, var(--accent), var(--card));
+            top: -250px; left: -200px;
+            animation: orbFloat1 12s ease-in-out infinite alternate;
             opacity: 0.4;
         }
 
-        .bg-orb-1 {
-            width: 560px;
-            height: 560px;
-            background: radial-gradient(circle, #FBEFEF, #F9DFDF);
-            top: -140px;
-            left: -120px;
-            animation-duration: 16s;
-        }
-
+        /* Bottom-right accent orb */
         .bg-orb-2 {
-            width: 440px;
-            height: 440px;
-            background: radial-gradient(circle, #F9DFDF, #F5AFAF);
-            bottom: -80px;
-            right: -60px;
-            animation-duration: 20s;
-            animation-delay: -6s;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle at 60% 60%, var(--card), var(--accent));
+            bottom: -150px; right: -120px;
+            animation: orbFloat2 15s ease-in-out infinite alternate;
+            opacity: 0.35;
         }
 
+        /* Centre floating accent blob */
         .bg-orb-3 {
-            width: 280px;
-            height: 280px;
-            background: radial-gradient(circle, #FCF8F8, #FBEFEF);
-            top: 42%;
-            left: 52%;
-            animation-duration: 12s;
-            animation-delay: -3s;
-            opacity: 0.8;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, var(--accent), transparent);
+            top: 30%; left: 45%;
+            animation: orbFloat3 10s ease-in-out infinite alternate;
+            opacity: 0.3;
         }
 
-        @keyframes orbFloat {
-            0% {
-                transform: translate(0, 0) scale(1);
-            }
+        /* Small top-right sparkle */
+        .bg-orb-4 {
+            width: 320px; height: 320px;
+            background: radial-gradient(circle, var(--card), var(--accent));
+            top: 5%; right: 10%;
+            animation: orbFloat1 9s ease-in-out infinite alternate-reverse;
+            opacity: 0.4;
+        }
 
-            50% {
-                transform: translate(40px, 30px) scale(1.08);
-            }
+        /* NEW: Orb 5 for more complexity */
+        .bg-orb-5 {
+            width: 450px; height: 450px;
+            background: radial-gradient(circle, var(--accent), var(--card));
+            bottom: 20%; left: 10%;
+            animation: orbFloat2 14s ease-in-out infinite alternate-reverse;
+            opacity: 0.25;
+            filter: blur(120px);
+        }
 
-            100% {
-                transform: translate(-20px, 50px) scale(0.95);
-            }
+        @keyframes orbFloat1 {
+            0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
+            50%  { transform: translate(180px, 140px) rotate(60deg) scale(1.15); }
+            100% { transform: translate(-100px, 240px) rotate(-45deg) scale(0.85); }
+        }
+        @keyframes orbFloat2 {
+            0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
+            50%  { transform: translate(-160px, -200px) rotate(-90deg) scale(1.1); }
+            100% { transform: translate(120px, -140px) rotate(45deg) scale(0.9); }
+        }
+        @keyframes orbFloat3 {
+            0%   { transform: translate(0, 0) scale(1); }
+            50%  { transform: translate(110px, -180px) scale(1.3); }
+            100% { transform: translate(-140px, 100px) scale(0.8); }
         }
 
         /* Grid overlay — very subtle pink dots, dreamy feel */
@@ -141,7 +160,7 @@
             background-size: 48px 48px;
         }
 
-        /* ─── Navigation ───────────────────────────────────────── */
+        /* Navigation */
         nav {
             position: sticky;
             top: 0;
@@ -215,7 +234,7 @@
             box-shadow: 0 0 6px #22c55e;
         }
 
-        /* ─── Buttons ──────────────────────────────────────────── */
+        /* Buttons */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -268,7 +287,7 @@
             border-color: rgba(245, 175, 175, 0.5);
         }
 
-        /* ─── Auth / Forms ─────────────────────────────────────── */
+        /* Auth / Forms */
         .auth-wrapper {
             display: flex;
             justify-content: center;
@@ -305,7 +324,7 @@
             line-height: 1.6;
         }
         
-        /* ─── Main Layout ──────────────────────────────────────── */
+        /* Main Layout */
         main {
             position: relative;
             z-index: 1;
@@ -314,7 +333,7 @@
             padding: 3rem 2.5rem 6rem;
         }
 
-        /* ─── Toast Messages ───────────────────────────────────── */
+        /* Toast Messages */
         .toast-container {
             position: fixed;
             bottom: 2rem;
@@ -356,7 +375,7 @@
             }
         }
 
-        /* ─── Responsive ───────────────────────────────────────── */
+        /* Responsive */
         @media (max-width: 640px) {
             nav {
                 padding: 0 1.2rem;
@@ -375,11 +394,13 @@
 
 <body>
 
-    <!-- Ambient background -->
+    <!-- Ambient background (4 orbs, reacts to theme colors) -->
     <div class="bg-canvas" aria-hidden="true">
-        <div class="bg-orb bg-orb-1"></div>
-        <div class="bg-orb bg-orb-2"></div>
-        <div class="bg-orb bg-orb-3"></div>
+        <div class="bg-orb bg-orb-1" id="orb1"></div>
+        <div class="bg-orb bg-orb-2" id="orb2"></div>
+        <div class="bg-orb bg-orb-3" id="orb3"></div>
+        <div class="bg-orb bg-orb-4" id="orb4"></div>
+        <div class="bg-orb bg-orb-5" id="orb5"></div>
     </div>
     <div class="bg-grid" aria-hidden="true"></div>
 
@@ -429,11 +450,50 @@
     </div>
     {% endif %}
 
+    <!-- GSAP / ScrollTrigger (optional, used by child pages) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
     <script>
         // Auto-dismiss toasts
         setTimeout(() => {
             document.querySelectorAll('.toast').forEach(t => t.remove());
         }, 4200);
+
+        // Orb Mouse Parallax
+        // Pure CSS transition-based (no GSAP needed here).
+        // The CSS animation continues running; we only SHIFT
+        // the base position of each orb via inline transform.
+        var orb1 = document.getElementById('orb1');
+        var orb2 = document.getElementById('orb2');
+        var orb3 = document.getElementById('orb3');
+        var orb4 = document.getElementById('orb4');
+        var orb5 = document.getElementById('orb5');
+
+        var ticking = false;
+        var mx = 0, my = 0;
+
+        document.addEventListener('mousemove', function (e) {
+            mx = (e.clientX / window.innerWidth - 0.5) * 2;  // -1 to 1
+            my = (e.clientY / window.innerHeight - 0.5) * 2;
+            if (!ticking) {
+                requestAnimationFrame(function () {
+                    // Intensitas gerakan ditingkatkan agar lebih terasa interaktif
+                    if (orb1) orb1.style.marginLeft = (mx * 100) + 'px';
+                    if (orb1) orb1.style.marginTop  = (my * 80) + 'px';
+                    if (orb2) orb2.style.marginRight = (-mx * 90) + 'px';
+                    if (orb2) orb2.style.marginBottom = (-my * 70) + 'px';
+                    if (orb3) orb3.style.marginLeft = (mx * 60) + 'px';
+                    if (orb3) orb3.style.marginTop  = (my * 90) + 'px';
+                    if (orb4) orb4.style.marginRight = (-mx * 70) + 'px';
+                    if (orb4) orb4.style.marginTop   = (-my * 50) + 'px';
+                    if (orb5) orb5.style.marginLeft = (-mx * 50) + 'px';
+                    if (orb5) orb5.style.marginBottom = (my * 60) + 'px';
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
     </script>
 
 </body>

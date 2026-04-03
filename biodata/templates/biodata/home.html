@@ -2,22 +2,39 @@
 
 {% block content %}
 <style>
-    /* ────────────────────────────────
-     HERO SECTION
-  ──────────────────────────────── */
+    /* HERO SECTION */
     .hero {
         text-align: center;
         padding: 5rem 1rem 4rem;
         position: relative;
     }
 
+    /* Mask wrapper — overflow:hidden membuat h1 yang slide
+       dari bawah tidak terlihat sebelum masuk area ini */
+    .hero-title-wrap {
+        overflow: hidden;
+        padding-bottom: 0.3rem;
+        margin-bottom: 1.5rem;
+    }
+
     .hero h1 {
         font-size: clamp(2.8rem, 7vw, 5.5rem);
         font-weight: 800;
         letter-spacing: -0.05em;
-        line-height: 1.05;
-        margin-bottom: 1.5rem;
-        animation: fadeSlideUp 0.7s ease 0.1s both;
+        line-height: 1.1;
+        margin-bottom: 0;
+        animation: slideUpReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+    }
+
+    @keyframes slideUpReveal {
+        from {
+            transform: translateY(110%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
     }
 
     .hero h1 .line-2 {
@@ -28,14 +45,15 @@
         background-clip: text;
     }
 
+    /* Subtitle & stats fade up */
     .hero-desc {
         font-size: 1.05rem;
-        opacity: 0.55;
+        opacity: 0;
         max-width: 480px;
         margin: 0 auto 3rem;
         line-height: 1.7;
         font-weight: 300;
-        animation: fadeSlideUp 0.7s ease 0.2s both;
+        animation: fadeUp 0.8s ease 0.75s forwards;
     }
 
     .hero-stats {
@@ -43,12 +61,16 @@
         justify-content: center;
         gap: 3rem;
         margin-bottom: 4rem;
-        animation: fadeSlideUp 0.7s ease 0.3s both;
+        opacity: 0;
+        animation: fadeUp 0.8s ease 1s forwards;
     }
 
-    .stat {
-        text-align: center;
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(24px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
+
+    .stat { text-align: center; }
 
     .stat-num {
         font-size: 2rem;
@@ -66,13 +88,14 @@
         margin-top: 0.25rem;
     }
 
-    /* Decorative line */
+    /* Divider dengan line sweep */
     .section-divider {
         display: flex;
         align-items: center;
         gap: 1.5rem;
         margin: 0 0 2.5rem;
-        animation: fadeSlideUp 0.7s ease 0.4s both;
+        opacity: 0;
+        animation: fadeUp 0.8s ease 1.2s forwards;
     }
 
     .section-divider::before,
@@ -81,6 +104,17 @@
         flex: 1;
         height: 1px;
         background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), 0.25), transparent);
+        transform: scaleX(0);
+        animation: lineSweep 1s ease 1.3s forwards;
+        transform-origin: left center;
+    }
+
+    .section-divider::after {
+        transform-origin: right center;
+    }
+
+    @keyframes lineSweep {
+        to { transform: scaleX(1); }
     }
 
     .section-divider-label {
@@ -90,21 +124,18 @@
         text-transform: uppercase;
         letter-spacing: 0.18em;
         opacity: 0.7;
+        white-space: nowrap;
     }
 
-    /* ────────────────────────────────
-     MEMBER GRID
-  ──────────────────────────────── */
+    /* MEMBER GRID & CARDS */
     .member-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
         gap: 1.5rem;
-        animation: fadeSlideUp 0.7s ease 0.5s both;
     }
 
-    /* ────────────────────────────────
-     MEMBER CARD
-  ──────────────────────────────── */
+    /* Initial state — kartu tersembunyi, IntersectionObserver
+       yang akan menambahkan class .is-visible saat di-scroll ke */
     .member-card {
         position: relative;
         background: var(--card);
@@ -112,10 +143,24 @@
         border-radius: var(--radius-lg);
         padding: 2rem 1.8rem 1.6rem;
         overflow: hidden;
-        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
-            box-shadow 0.35s ease,
+        cursor: pointer;
+        opacity: 0;
+        transform: translateY(50px);
+        transition:
+            opacity 0.65s ease,
+            transform 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+            box-shadow 0.4s ease,
             border-color 0.3s ease;
-        cursor: default;
+    }
+
+    .member-card.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .member-card:hover {
+        box-shadow: 0 20px 48px rgba(0,0,0,0.12), 0 0 0 1px rgba(var(--accent-rgb), 0.3);
+        border-color: rgba(var(--accent-rgb), 0.4);
     }
 
     .member-card::before {
@@ -123,78 +168,65 @@
         position: absolute;
         inset: 0;
         border-radius: var(--radius-lg);
-        background: linear-gradient(135deg,
-                rgba(var(--accent-rgb), 0.07) 0%,
-                transparent 60%);
-        opacity: 0;
-        transition: opacity 0.35s ease;
-    }
-
-    .member-card::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.06) 0%, transparent 60%);
         opacity: 0;
         transition: opacity 0.3s ease;
     }
 
-    .member-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(var(--accent-rgb), 0.2);
-        border-color: rgba(var(--accent-rgb), 0.3);
+    .member-card:hover::before { opacity: 1; }
+
+    /* Garis aksen di atas kartu saat hover */
+    .member-card::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        transform: scaleX(0);
+        transition: transform 0.4s ease;
+        transform-origin: center;
     }
 
-    .member-card:hover::before {
-        opacity: 1;
-    }
+    .member-card:hover::after { transform: scaleX(1); }
 
-    .member-card:hover::after {
-        opacity: 1;
-    }
-
-    /* Card number badge */
+    /* ── Card internals ── */
     .card-num {
         position: absolute;
-        top: 1.2rem;
-        right: 1.4rem;
+        top: 1.2rem; right: 1.4rem;
         font-size: 0.68rem;
         font-weight: 700;
         color: var(--accent);
-        opacity: 0.35;
+        opacity: 0.3;
         letter-spacing: 0.05em;
         font-family: 'Space Grotesk', sans-serif;
+        transition: opacity 0.3s ease;
     }
+    .member-card:hover .card-num { opacity: 0.7; }
 
-    /* Avatar */
     .card-avatar-wrap {
         position: relative;
-        width: 72px;
-        height: 72px;
+        width: 72px; height: 72px;
         margin-bottom: 1.3rem;
     }
 
     .card-photo {
-        width: 72px;
-        height: 72px;
+        width: 72px; height: 72px;
         border-radius: 50%;
         object-fit: cover;
-        border: 2.5px solid rgba(var(--accent-rgb), 0.6);
+        border: 2.5px solid rgba(var(--accent-rgb), 0.5);
         display: block;
-        transition: border-color 0.3s ease;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease,
+                    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .member-card:hover .card-photo {
         border-color: var(--accent);
-        box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.4);
+        box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.5);
+        transform: scale(1.1) rotate(4deg);
     }
 
     .card-avatar-fallback {
-        width: 72px;
-        height: 72px;
+        width: 72px; height: 72px;
         border-radius: 50%;
         background: linear-gradient(135deg, var(--accent), rgba(var(--accent-rgb), 0.5));
         display: flex;
@@ -206,33 +238,31 @@
         border: 2.5px solid rgba(var(--accent-rgb), 0.4);
         transition: box-shadow 0.3s ease;
     }
-
     .member-card:hover .card-avatar-fallback {
-        box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.45);
+        box-shadow: 0 0 18px rgba(var(--accent-rgb), 0.45);
     }
 
-    /* Online indicator */
+    /* Online dot */
     .card-avatar-wrap::after {
         content: '';
         position: absolute;
-        bottom: 2px;
-        right: 2px;
-        width: 12px;
-        height: 12px;
+        bottom: 2px; right: 2px;
+        width: 12px; height: 12px;
         background: #22c55e;
         border: 2px solid var(--card);
         border-radius: 50%;
-        box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+        box-shadow: 0 0 6px rgba(34,197,94,0.6);
     }
 
-    /* Name + role */
     .card-name {
         font-size: 1.15rem;
         font-weight: 700;
         letter-spacing: -0.02em;
         margin-bottom: 0.2rem;
         line-height: 1.2;
+        transition: color 0.2s ease;
     }
+    .member-card:hover .card-name { color: var(--accent); }
 
     .card-role {
         display: inline-flex;
@@ -246,16 +276,13 @@
         margin-bottom: 1.1rem;
         opacity: 0.85;
     }
-
     .card-role::before {
         content: '';
-        width: 4px;
-        height: 4px;
+        width: 4px; height: 4px;
         background: var(--accent);
         border-radius: 50%;
     }
 
-    /* Bio */
     .card-bio {
         font-size: 0.86rem;
         line-height: 1.7;
@@ -269,111 +296,15 @@
         overflow: hidden;
     }
 
-    /* Divider inside card */
-    .card-divider {
-        height: 1px;
-        background: rgba(var(--accent-rgb), 0.1);
-        margin-bottom: 1.2rem;
-    }
-
-    /* Links */
-    .card-links {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    .card-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.3rem;
-        font-size: 0.72rem;
-        font-weight: 600;
-        padding: 0.3rem 0.7rem;
-        border-radius: 6px;
-        border: 1px solid rgba(var(--accent-rgb), 0.2);
-        color: var(--text);
-        text-decoration: none;
-        opacity: 0.65;
-        transition: all 0.2s ease;
-        letter-spacing: 0.02em;
-    }
-
-    .card-link:hover {
-        border-color: var(--accent);
-        color: var(--accent);
-        opacity: 1;
-        background: rgba(var(--accent-rgb), 0.08);
-        transform: translateY(-1px);
-    }
-
-    /* ────────────────────────────────
-     EMPTY STATE
-  ──────────────────────────────── */
+    /* EMPTY STATE & FOOTER */
     .empty-state {
         grid-column: 1 / -1;
         text-align: center;
         padding: 5rem 2rem;
     }
+    .empty-icon { font-size: 3.5rem; margin-bottom: 1rem; opacity: 0.3; }
+    .empty-state p { opacity: 0.4; font-size: 0.95rem; line-height: 1.6; }
 
-    .empty-icon {
-        font-size: 3.5rem;
-        margin-bottom: 1rem;
-        opacity: 0.3;
-    }
-
-    .empty-state p {
-        opacity: 0.4;
-        font-size: 0.95rem;
-        line-height: 1.6;
-    }
-
-    /* ────────────────────────────────
-     ANIMATIONS
-  ──────────────────────────────── */
-    @keyframes fadeSlideUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .member-card {
-        animation: fadeSlideUp 0.5s ease both;
-    }
-
-    .member-card:nth-child(1) {
-        animation-delay: 0.05s;
-    }
-
-    .member-card:nth-child(2) {
-        animation-delay: 0.12s;
-    }
-
-    .member-card:nth-child(3) {
-        animation-delay: 0.18s;
-    }
-
-    .member-card:nth-child(4) {
-        animation-delay: 0.24s;
-    }
-
-    .member-card:nth-child(5) {
-        animation-delay: 0.30s;
-    }
-
-    .member-card:nth-child(6) {
-        animation-delay: 0.36s;
-    }
-
-    /* ────────────────────────────────
-     FOOTER
-  ──────────────────────────────── */
     .page-footer {
         text-align: center;
         margin-top: 5rem;
@@ -382,38 +313,26 @@
         letter-spacing: 0.05em;
     }
 
-    /* ────────────────────────────────
-     RESPONSIVE
-  ──────────────────────────────── */
     @media (max-width: 640px) {
-        .hero {
-            padding: 3rem 0.5rem 2.5rem;
-        }
-
-        .hero h1 {
-            font-size: clamp(2.2rem, 9vw, 3.5rem);
-        }
-
-        .hero-stats {
-            gap: 1.8rem;
-        }
-
-        .member-grid {
-            grid-template-columns: 1fr;
-        }
+        .hero { padding: 3rem 0.5rem 2.5rem; }
+        .hero h1 { font-size: clamp(2.2rem, 9vw, 3.5rem); }
+        .hero-stats { gap: 1.8rem; }
+        .member-grid { grid-template-columns: 1fr; }
     }
 </style>
 
 <!-- HERO -->
 <section class="hero" role="banner">
 
-    <h1>
-        <span class="line-2">LaLaLaLaLa</span>
-        Team
-    </h1>
+    <div class="hero-title-wrap">
+        <h1>
+            <span class="line-2">LaLaLaLaLa</span>
+            Team
+        </h1>
+    </div>
 
     <p class="hero-desc">
-        Welcome to the LaLaLaLaLa Team  — PKPL. Get to know us better!
+        Welcome to the LaLaLaLaLa Team — PKPL. Get to know us better!
     </p>
 
     <div class="hero-stats">
@@ -447,46 +366,10 @@
         </div>
 
         <h2 class="card-name">{{ member.name }}</h2>
-        <div class="card-role">{{ member.role }}</div>
+        <div class="card-role">NPM: {{ member.npm }} &nbsp;•&nbsp; {{ member.prodi }}</div>
 
         {% if member.bio %}
         <p class="card-bio">{{ member.bio }}</p>
-        {% endif %}
-
-        {% if member.github or member.instagram or member.email %}
-        <div class="card-divider"></div>
-        <div class="card-links">
-            {% if member.github %}
-            <a href="{{ member.github }}" target="_blank" rel="noopener noreferrer" class="card-link"
-                aria-label="GitHub {{ member.name }}">
-                <svg width="11" height="11" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path
-                        d="M10 0C4.477 0 0 4.477 0 10c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.483 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.026A9.578 9.578 0 0110 4.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.026 2.747-1.026.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.934.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0010 0z" />
-                </svg>
-                GitHub
-            </a>
-            {% endif %}
-            {% if member.instagram %}
-            <a href="{{ member.instagram }}" target="_blank" rel="noopener noreferrer" class="card-link"
-                aria-label="Instagram {{ member.name }}">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path
-                        d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                </svg>
-                Instagram
-            </a>
-            {% endif %}
-            {% if member.email %}
-            <a href="mailto:{{ member.email }}" class="card-link" aria-label="Email {{ member.name }}">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    aria-hidden="true">
-                    <rect x="2" y="4" width="20" height="16" rx="2" />
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                </svg>
-                Email
-            </a>
-            {% endif %}
-        </div>
         {% endif %}
 
     </article>
@@ -500,7 +383,42 @@
 
 <p class="page-footer">
     © 2025 Team LaLaLaLaLa · TK-2 PKPL · Built with ❤️<br>
-    <a href="https://www.flaticon.com/free-icons/cute" title="cute icons" style="color: inherit; text-decoration: none; opacity: 0.7; margin-top: 5px; display: inline-block;">Cute icons created by Smashicons - Flaticon</a>
+    <a href="https://www.flaticon.com/free-icons/cute" title="cute icons"
+       style="color:inherit;text-decoration:none;opacity:0.7;margin-top:5px;display:inline-block;">
+        Cute icons created by Smashicons - Flaticon
+    </a>
 </p>
+
+<!-- SCROLL REVEAL (IntersectionObserver) -->
+<script>
+(function () {
+    var cards = document.querySelectorAll('.member-card');
+    if (!cards.length) return;
+
+    if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    var card  = entry.target;
+                    var index = Array.prototype.indexOf.call(cards, card);
+                    // Stagger: tiap kartu muncul 120ms setelah kartu sebelumnya
+                    card.style.transitionDelay = (index * 0.12) + 's';
+                    card.classList.add('is-visible');
+                    io.unobserve(card); // Animasikan hanya sekali
+                }
+            });
+        }, {
+            threshold: 0.08,
+            rootMargin: '0px 0px -30px 0px'
+        });
+
+        cards.forEach(function (card) { io.observe(card); });
+
+    } else {
+        // Fallback browser lama: tampilkan semua langsung
+        cards.forEach(function (c) { c.classList.add('is-visible'); });
+    }
+}());
+</script>
 
 {% endblock %}
