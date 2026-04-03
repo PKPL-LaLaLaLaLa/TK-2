@@ -4,18 +4,47 @@
 {% block content %}
 <div class="auth-wrapper">
     <div class="auth-card">
-        <h1>Sign Up</h1>
-        <p>You are about to sign in with a third-party account. Please confirm to continue.</p>
+        <div style="margin-bottom: 2.2rem;">
+            <h1>Sign Up</h1>
+            <p>Complete your group profile to unlock all features.</p>
+        </div>
 
-        <form style="display: flex; flex-direction: column; gap: 1rem;" id="signup_form" method="post" action="{% url 'socialaccount_signup' %}">
+        <form id="signup_form" method="post" action="{% url 'socialaccount_signup' %}" style="display: flex; flex-direction: column;">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-solid" style="width: 100%; justify-content: center; padding: 0.9rem; font-size: 1rem;">
-                Continue
-            </button>
-            <a href="{% url 'home' %}" class="btn btn-ghost" style="width: 100%; justify-content: center; padding: 0.9rem; font-size: 1rem;">
-                Cancel
-            </a>
+            
+            {% for field in form %}
+            <div class="auth-form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <input type="{{ field.field.widget.input_type|default:'text' }}" 
+                       name="{{ field.name }}" 
+                       id="{{ field.id_for_label }}" 
+                       class="auth-input" 
+                       value="{{ field.value|default:'' }}"
+                       placeholder="{{ field.label }}..."
+                       required>
+                
+                {% if field.help_text %}
+                <p class="auth-help-text">{{ field.help_text|safe }}</p>
+                {% endif %}
+
+                {% if field.errors %}
+                <ul class="auth-error-list">
+                    {% for error in field.errors %}
+                    <li><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-right:2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> {{ error }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-solid" style="width: 100%; justify-content: center; padding: 0.95rem; font-size: 1rem;">
+                    Sign Up Now
+                </button>
+                <a href="{% url 'home' %}" class="btn btn-ghost" style="width: 100%; justify-content: center; padding: 0.95rem; font-size: 1rem;">
+                    Cancel
+                </a>
+            </div>
         </form>
     </div>
 </div>
